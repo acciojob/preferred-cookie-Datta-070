@@ -1,34 +1,66 @@
-//your JS code here. If required.
-const fontSizeInput = document.getElementById("fontsize");
-const fontColorInput = document.getElementById("fontcolor");
-const saveButton = document.querySelector("input[type='submit']");
+ function setCookie(name, value, days) {
+      let expires = "";
+      if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+      }
+      document.cookie = name + "=" + value + expires + "; path=/";
+    }
 
-// Load saved preferences from cookies
-if (document.cookie) {
-  const preferences = document.cookie.split(";").reduce((acc, cookie) => {
-    const [key, value] = cookie.split("=");
-    acc[key.trim()] = value.trim();
-    return acc;
-  }, {});
+    // Function to get the value of a cookie with the provided name
+    function getCookie(name) {
+      const cookieName = name + "=";
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        let cookie = cookies[i].trim();
+        if (cookie.startsWith(cookieName)) {
+          return cookie.substring(cookieName.length, cookie.length);
+        }
+      }
+      return "";
+    }
 
-  if (preferences.fontSize) {
-    fontSizeInput.value = preferences.fontSize;
-    document.documentElement.style.setProperty("--fontsize", preferences.fontSize + "px");
-  }
+    // Function to apply the saved preferences
+    function applyPreferences() {
+      const fontSizeInput = document.getElementById('fontsize');
+      const fontColorInput = document.getElementById('fontcolor');
 
-  if (preferences.fontColor) {
-    fontColorInput.value = preferences.fontColor;
-    document.documentElement.style.setProperty("--fontcolor", preferences.fontColor);
-  }
-}
+      const savedFontSize = getCookie('fontsize');
+      if (savedFontSize !== "") {
+        fontSizeInput.value = savedFontSize;
+        document.body.style.fontSize = savedFontSize + 'px';
+      }
 
-// Save preferences to cookies on form submit
-saveButton.addEventListener("click", (event) => {
-  event.preventDefault();
-  const fontSize = fontSizeInput.value;
-  const fontColor = fontColorInput.value;
-  document.documentElement.style.setProperty("--fontsize", fontSize + "px");
-  document.documentElement.style.setProperty("--fontcolor", fontColor);
-  document.cookie = `fontSize=${fontSize}; expires=${new Date(Date.now() + 86400000).toUTCString()}`;
-  document.cookie = `fontColor=${fontColor}; expires=${new Date(Date.now() + 86400000).toUTCString()}`;
-});
+      const savedFontColor = getCookie('fontcolor');
+      if (savedFontColor !== "") {
+        fontColorInput.value = savedFontColor;
+        document.body.style.color = savedFontColor;
+      }
+    }
+
+    // Function to handle form submission
+    function handleSubmit(event) {
+      event.preventDefault();
+
+      const fontSizeInput = document.getElementById('fontsize');
+      const fontColorInput = document.getElementById('fontcolor');
+
+      const fontsize = fontSizeInput.value;
+      const fontcolor = fontColorInput.value;
+
+      // Save preferences using cookies
+      setCookie('fontsize', fontsize, 30);
+      setCookie('fontcolor', fontcolor, 30);
+
+      // Apply the saved preferences
+      document.body.style.fontSize = fontsize + 'px';
+      document.body.style.color = fontcolor;
+    }
+
+    // Add event listener for form submission
+    const form = document.getElementById('customizeForm');
+    form.addEventListener('submit', handleSubmit);
+
+    // Apply the saved preferences on page load
+    window.addEventListener('load', applyPreferences);
